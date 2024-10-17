@@ -1,8 +1,6 @@
 <script lang="ts">
 import { useAuth0 } from '@auth0/auth0-vue'
 import Button from 'primevue/button'
-import InlineMessage from 'primevue/inlinemessage'
-import axios from 'axios'
 
 export default {
   data() {
@@ -23,21 +21,14 @@ export default {
       document.documentElement.classList.toggle("dark-mode")
     }
   },
-  mounted() {
-    axios.get('http://localhost:5242/ticket/count')
-      .then((res) => {
-        this.$data.ticketCount = res.data
-      })
-  },
   components: {
-    Button,
-    InlineMessage
+    Button
   }
 }
 </script>
 
 <template>
-  <div class="top-bar">
+  <nav>
     <Button @click="toggleTheme()">Toggle dark mode</button>
     <div class="logout" v-if="isAuthenticated">
       <img :src="user.picture" />
@@ -45,18 +36,14 @@ export default {
       <Button @click="logout">Log out</button>
     </div>
     <Button v-else @click="login">Log in</button>
-  </div>
-
-  <h1>Generated tickets: {{ ticketCount === undefined ? "loading..." : ticketCount }}</h1>
-
-  <div class="login-warning">
-    <InlineMessage v-if="isAuthenticated === false" severity="warn">Log in to buy a ticket!</InlineMessage>
-  </div>
-
+  </nav>
+  <main>
+    <RouterView />
+  </main>
 </template>
 
 <style scoped>
-.top-bar {
+nav {
   display: flex;
   justify-content: space-between;
   height: 32px;
@@ -71,11 +58,5 @@ export default {
 
 .username {
   align-content: center;
-}
-
-.login-warning {
-  width: 100wv;
-  display: flex;
-  justify-content: space-around;
 }
 </style>
