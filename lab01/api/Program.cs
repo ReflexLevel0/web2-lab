@@ -6,8 +6,17 @@ const string serverUrl = "http://localhost:5242";
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddCors(options =>
+{
+	options.AddPolicy(name: "allow vue website",
+		policy =>
+		{
+			policy.WithOrigins("http://localhost:5173");
+		});
+});
 builder.Configuration.AddJsonFile("appsettings.json");
 var app = builder.Build();
+app.UseCors("allow vue website");
 
 string? connectionString = app.Configuration.GetConnectionString("PostgreDbConnection");
 if (connectionString == null)
