@@ -1,5 +1,6 @@
 using DataModel;
 using LinqToDB;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
@@ -13,6 +14,13 @@ builder.Services.AddCors(options =>
 		});
 });
 builder.Services.AddControllers();
+string domain = (string)builder.Configuration["auth0_domain"]!;
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+{
+	options.Authority = domain;
+	options.Audience = builder.Configuration["auth0_audience"];
+	options.RequireHttpsMetadata = false;
+});
 
 // Connecting to the database
 string? connectionString = builder.Configuration.GetConnectionString("PostgreDbConnection");
@@ -32,4 +40,6 @@ if (app.Environment.IsDevelopment())
 	app.UseSwaggerUI();
 }
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 app.Run();

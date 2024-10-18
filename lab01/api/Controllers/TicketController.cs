@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
+[ApiController]
 [Route("[controller]")]
-public class TicketController : Controller
+public class TicketController : ControllerBase
 {
 	private IDbHelper _dbHelper;
 
@@ -11,6 +13,7 @@ public class TicketController : Controller
 	}
 
 	[HttpGet]
+	[Authorize]
 	[Route("count")]
 	public async Task<int> GetTicketCount()
 	{
@@ -18,6 +21,7 @@ public class TicketController : Controller
 	}
 
 	[HttpGet]
+	[Authorize]
 	[Route("{id}")]
 	public async Task<IResult> GetTicket(Guid id)
 	{
@@ -27,6 +31,7 @@ public class TicketController : Controller
 	}
 
 	[HttpPost]
+	[Authorize]
 	[Route("add")]
 	public async Task<IResult> AddTicket([FromBody] TicketInput ticket)
 	{
