@@ -2,7 +2,6 @@ using DataModel;
 using LinqToDB;
 using Microsoft.AspNetCore.Mvc;
 
-const string serverUrl = "http://localhost:5242";
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -14,24 +13,21 @@ builder.Services.AddCors(options =>
 			policy.WithOrigins("http://localhost:5173");
 		});
 });
-builder.Configuration.AddJsonFile("appsettings.json");
 var app = builder.Build();
 app.UseCors("allow vue website");
-
-string? connectionString = app.Configuration.GetConnectionString("PostgreDbConnection");
-if (connectionString == null)
-{
-	throw new Exception("Connection string not set in appsettings.json!");
-}
-
-var ticketsDb = new TicketsDb(new DataOptions<TicketsDb>(new DataOptions().UsePostgreSQL(connectionString)));
-var dbHelper = new DbHelper(ticketsDb, serverUrl);
 
 if (app.Environment.IsDevelopment())
 {
 	app.UseSwagger();
 	app.UseSwaggerUI();
 }
+
+string? connectionString = app.Configuration.GetConnectionString("PostgreDbConnection");
+if (connectionString == null) throw new Exception("Connection string not set in appsettings file");
+var ticketsDb = new TicketsDb(new DataOptions<TicketsDb>(new DataOptions().UsePostgreSQL(connectionString)));
+string? serverUrl = (string?)app.Configuration.GetValue(typeof(string), "ServerUrl");
+if (serverUrl == null) throw new Exception("Server URL not set in appsettings file");
+var dbHelper = new DbHelper(ticketsDb, serverUrl);
 
 app.UseHttpsRedirection();
 
