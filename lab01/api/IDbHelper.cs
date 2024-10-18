@@ -1,6 +1,6 @@
 using DataModel;
 
-interface IDbHelper
+public interface IDbHelper
 {
 	Task<int> GetTicketCount();
 	Task<byte[]> AddTicket(TicketInput input);

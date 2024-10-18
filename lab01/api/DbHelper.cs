@@ -24,9 +24,21 @@ class DbHelper : IDbHelper
 									 where string.CompareOrdinal(t.Vatin, input.Vatin) == 0
 									 select t).CountAsync();
 
-		if (userTicketCount >= 3)
+		if (input.Vatin == null)
 		{
-			throw new Exception("ERROR: ticket could no tbe added! User has max amount of tickets.");
+			throw new MissingFieldException("Vatin input field is empty");
+		}
+		else if (input.FirstName == null)
+		{
+			throw new MissingFieldException("FirstName input field is empty");
+		}
+		else if (input.LastName == null)
+		{
+			throw new MissingFieldException("LastName input field is empty");
+		}
+		else if (userTicketCount >= 3)
+		{
+			throw new TooManyTicketsException(input.Vatin);
 		}
 
 		var ticket = new Ticket()
