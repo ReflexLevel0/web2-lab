@@ -6,10 +6,12 @@ using Microsoft.AspNetCore.Authorization;
 public class TicketController : ControllerBase
 {
 	private IDbHelper _dbHelper;
+	private ConfigurationManager _configurationManager;
 
-	public TicketController(IDbHelper dbHelper)
+	public TicketController(IDbHelper dbHelper, ConfigurationManager configurationManager)
 	{
 		_dbHelper = dbHelper;
+		_configurationManager = configurationManager;
 	}
 
 	[HttpGet]
@@ -20,10 +22,12 @@ public class TicketController : ControllerBase
 	}
 
 	[HttpGet]
-	[Authorize]
 	[Route("{id}")]
 	public async Task<IResult> GetTicket(Guid id)
 	{
+		var authString = Request.Headers["Authorization"].ToString().Split(' ').Last();
+		var validator = new TokenValidator(_configurationManager).ValidateToken(authString);
+		if (validator == null) return Results.Unauthorized();
 		var ticket = await _dbHelper.GetTicket(id);
 		if (ticket == null) return Results.NotFound(id);
 		return Results.Ok(ticket);

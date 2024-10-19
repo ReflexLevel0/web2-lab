@@ -15,20 +15,20 @@ builder.Services.AddCors(options =>
 		});
 });
 builder.Services.AddControllers();
+builder.Services.AddSingleton<ConfigurationManager>(builder.Configuration);
 
 // Enabling Auth0 authentication
-string domain = (string)builder.Configuration["auth0_domain"]!;
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
-	options.Authority = builder.Configuration["Auth0:Authority"];
-	options.Audience = builder.Configuration["Auth0:Audience"];
+	options.Authority = builder.Configuration["M2M:Authority"];
+	options.Audience = builder.Configuration["M2M:Audience"];
 	options.RequireHttpsMetadata = false;
 	options.TokenValidationParameters = new TokenValidationParameters
 	{
 		ValidateIssuer = true,
-		ValidIssuer = $"https://{builder.Configuration["Auth0:Domain"]}/",
+		ValidIssuer = $"https://{builder.Configuration["M2M:Domain"]}/",
 		ValidateAudience = true,
-		ValidAudience = builder.Configuration["Auth0:Audience"],
+		ValidAudience = builder.Configuration["M2M:Audience"],
 		ValidateLifetime = true,
 		ValidateIssuerSigningKey = false,
 		SignatureValidator = delegate (string token, TokenValidationParameters parameters)
