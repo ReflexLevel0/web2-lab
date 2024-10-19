@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
-[Route("[controller]")]
+[Route("ticket")]
 public class TicketController : ControllerBase
 {
 	private IDbHelper _dbHelper;
