@@ -13,7 +13,6 @@ public class TicketController : ControllerBase
 	}
 
 	[HttpGet]
-	[Authorize]
 	[Route("count")]
 	public async Task<int> GetTicketCount()
 	{

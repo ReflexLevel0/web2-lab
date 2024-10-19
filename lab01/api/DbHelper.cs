@@ -57,7 +57,7 @@ class DbHelper : IDbHelper
 		}
 
 		var qrGenerator = new QRCodeGenerator();
-		var qrCodeData = qrGenerator.CreateQrCode($"{_serverUrl}/{ticket.Id}", QRCodeGenerator.ECCLevel.Default);
+		var qrCodeData = qrGenerator.CreateQrCode($"{_serverUrl}/ticket/{ticket.Id}", QRCodeGenerator.ECCLevel.Default);
 		var qrCode = new PngByteQRCode(qrCodeData);
 		var qrCodeImage = qrCode.GetGraphic(20);
 		return qrCodeImage;

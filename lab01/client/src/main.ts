@@ -33,8 +33,10 @@ app.use(PrimeVue, {
     domain: import.meta.env.VITE_DOMAIN,
     clientId: import.meta.env.VITE_CLIENT_ID,
     authorizationParams: {
-      redirect_uri: window.location.origin
-    }
+      redirect_uri: window.location.origin,
+      audience: 'web2-lab'
+    },
+    cacheLocation:'localstorage'
 }))
 .use(router)
 .use(createPinia())
