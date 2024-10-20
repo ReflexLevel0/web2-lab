@@ -10,7 +10,7 @@ const settings: any = {
   redirect_uri: window.location.origin,
   response_type: "id_token token",
   scope: "openid profile",
-  post_logout_redirect_uri: import.meta.env.VITE_SERVER_URL,
+  post_logout_redirect_uri: window.location.origin,
   filterProtocolClaims: true,
 };
 const userManager = new UserManager(settings);

@@ -63,13 +63,13 @@ export default {
     Generated tickets:
     {{ ticketCount === undefined ? "loading..." : ticketCount }}
   </h1>
-  <div class="login-warning">
+  <!--<div class="login-warning">
     <InlineMessage
       v-if="userStore !== undefined && userStore.isAuthenticated === false"
       severity="warn"
       >Log in to buy a ticket!</InlineMessage
     >
-    <!--<form v-else v-on:submit.prevent="buyTicket()">
+    <form v-else v-on:submit.prevent="buyTicket()">
       <FloatLabel variant="on" class="form-field">
         <InputText id="vatin" :invalid="!vatin" v-model="vatin"/>
         <label for="vatin">Vatin</label>
@@ -83,17 +83,11 @@ export default {
         <label for="lastName">Last name</label>
       </FloatLabel>
       <Button type="submit">Purchase ticket</Button>
-    </form>-->
-  </div>
+    </form>
+  </div>-->
 </template>
 
 <style scoped>
-.login-warning {
-  width: 100wv;
-  display: flex;
-  justify-content: space-around;
-}
-
 .form-field {
   margin-bottom: 20px;
 }
