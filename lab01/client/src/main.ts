@@ -19,6 +19,7 @@ const router = createRouter({
 })
 
 const app = createApp(App)
+app.use(createPinia())
 app.use(PrimeVue, {
   theme: {
       preset: Aura,
@@ -29,15 +30,5 @@ app.use(PrimeVue, {
     }
   }
 })
-.use(createAuth0({
-    domain: import.meta.env.VITE_DOMAIN,
-    clientId: import.meta.env.VITE_CLIENT_ID,
-    authorizationParams: {
-      redirect_uri: window.location.origin,
-      audience: 'web2-lab'
-    },
-    cacheLocation:'localstorage'
-}))
 .use(router)
-.use(createPinia())
 .mount("#app")

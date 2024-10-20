@@ -8,11 +8,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>
 {
-	options.AddPolicy(name: "allow vue website",
-		policy =>
-		{
-			policy.WithOrigins("http://localhost:5173").AllowAnyMethod().AllowAnyHeader();
-		});
+    options.AddPolicy(name: "allow vue website",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5173").AllowAnyMethod().AllowAnyHeader();
+        });
 });
 builder.Services.AddControllers();
 builder.Services.AddSingleton<ConfigurationManager>(builder.Configuration);
@@ -20,23 +20,23 @@ builder.Services.AddSingleton<ConfigurationManager>(builder.Configuration);
 // Enabling Auth0 authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
-	options.Authority = builder.Configuration["M2M:Authority"];
-	options.Audience = builder.Configuration["M2M:Audience"];
-	options.RequireHttpsMetadata = false;
-	options.TokenValidationParameters = new TokenValidationParameters
-	{
-		ValidateIssuer = true,
-		ValidIssuer = $"https://{builder.Configuration["M2M:Domain"]}/",
-		ValidateAudience = true,
-		ValidAudience = builder.Configuration["M2M:Audience"],
-		ValidateLifetime = true,
-		ValidateIssuerSigningKey = false,
-		SignatureValidator = delegate (string token, TokenValidationParameters parameters)
-		{
-			var jwt = new Microsoft.IdentityModel.JsonWebTokens.JsonWebToken(token);
-			return jwt;
-		}
-	};
+    options.Authority = builder.Configuration["M2M:Authority"];
+    options.Audience = builder.Configuration["M2M:Audience"];
+    options.RequireHttpsMetadata = false;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidIssuer = $"https://{builder.Configuration["M2M:Domain"]}/",
+        ValidateAudience = true,
+        ValidAudience = builder.Configuration["M2M:Audience"],
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = false,
+        SignatureValidator = delegate (string token, TokenValidationParameters parameters)
+        {
+            var jwt = new Microsoft.IdentityModel.JsonWebTokens.JsonWebToken(token);
+            return jwt;
+        }
+    };
 });
 
 // Connecting to the database
@@ -53,8 +53,8 @@ app.UseCors("allow vue website");
 app.MapControllers();
 if (app.Environment.IsDevelopment())
 {
-	app.UseSwagger();
-	app.UseSwaggerUI();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 app.UseHttpsRedirection();
 app.UseAuthentication();

@@ -1,41 +1,77 @@
 <script lang="ts">
-import { useAuth0 } from '@auth0/auth0-vue'
-import Button from 'primevue/button'
+import Button from "primevue/button";
+import { UserManager, WebStorageStateStore, User } from "oidc-client";
+import { useUserStore } from "@/stores/user";
+
+const settings: any = {
+  userStore: new WebStorageStateStore({ store: window.localStorage }),
+  authority: `https://${import.meta.env.VITE_DOMAIN}`,
+  client_id: import.meta.env.VITE_CLIENT_ID,
+  redirect_uri: window.location.origin,
+  response_type: "id_token token",
+  scope: "openid profile",
+  post_logout_redirect_uri: import.meta.env.VITE_SERVER_URL,
+  filterProtocolClaims: true,
+};
+const userManager = new UserManager(settings);
 
 export default {
   data() {
     return {
-      user: this.$auth0.user,
-      isAuthenticated: this.$auth0.isAuthenticated,
-      ticketCount: undefined
-    }
+      ticketCount: undefined,
+      userStore: undefined,
+    };
   },
   methods: {
-    login() {
-      this.$auth0.loginWithRedirect()
+    async login() {
+      userManager.signinRedirect();
     },
-    logout() {
-      this.$auth0.logout()
+    async logout() {
+      userManager.signoutRedirect();
     },
     toggleTheme() {
-      document.documentElement.classList.toggle("dark-mode")
-    }
+      document.documentElement.classList.toggle("dark-mode");
+    },
   },
   components: {
-    Button
-  }
-}
+    Button,
+  },
+  mounted() {
+    this.$data.userStore = useUserStore();
+    console.log("user store", this.$data.userStore);
+    userManager
+      .signinCallback()
+      .then((user) => {
+        console.log("User signed in", user);
+      })
+      .catch((err) => {
+        console.log("Error handling redirect callback", err);
+      })
+      .finally(() => {
+        userManager.getUser().then((user: any) => {
+          console.log(user);
+          this.$data.userStore.isAuthenticated = user !== null && !user.expired;
+          this.$data.userStore.user = user;
+        });
+      });
+  },
+};
 </script>
 
 <template>
   <nav>
-    <Button @click="toggleTheme()">Toggle dark mode</button>
-    <div class="logout" v-if="isAuthenticated">
-      <img :src="user.picture" />
-      <div class="username"><b>{{ user.nickname }}</b></div>
-      <Button @click="logout">Log out</button>
+    <Button @click="toggleTheme()">Toggle dark mode</Button>
+    <div
+      class="logout"
+      v-if="userStore !== undefined && userStore.isAuthenticated"
+    >
+      <img :src="userStore.user.profile.picture" />
+      <div class="username">
+        <b>{{ userStore.user.profile.nickname }}</b>
+      </div>
+      <Button @click="logout">Log out</Button>
     </div>
-    <Button v-else @click="login">Log in</button>
+    <Button v-else @click="login">Log in</Button>
   </nav>
   <main>
     <RouterView />
