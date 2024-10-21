@@ -13,7 +13,7 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy.WithOrigins("http://localhost:5173").AllowAnyMethod().AllowAnyHeader();
-            policy.WithOrigins("https://web2-lab01-client.onrender.com:5173").AllowAnyMethod().AllowAnyHeader();
+            policy.WithOrigins("https://web2-lab01-client.onrender.com").AllowAnyMethod().AllowAnyHeader();
         });
 });
 builder.Services.AddControllers();
@@ -43,12 +43,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 
 // Connecting to the database
 string? connectionString = builder.Configuration["DB_CONN_STRING"];
-System.Console.WriteLine(connectionString);
 if (connectionString == null) throw new Exception("Connection string not set in appsettings file");
 var ticketsDb = new TicketsDb(new DataOptions<TicketsDb>(new DataOptions().UsePostgreSQL(connectionString)));
 string? serverUrl = (string?)builder.Configuration["SERVER_URL"];
 if (serverUrl == null) throw new Exception("Server URL not set in appsettings file");
-Console.WriteLine(serverUrl);
 var dbHelper = new DbHelper(ticketsDb, serverUrl);
 builder.Services.AddScoped<IDbHelper>(sp => dbHelper);
 

@@ -38,7 +38,6 @@ export default {
   },
   mounted() {
     this.$data.userStore = useUserStore();
-    console.log("user store", this.$data.userStore);
     userManager
       .signinCallback()
       .then((user) => {
@@ -49,7 +48,6 @@ export default {
       })
       .finally(() => {
         userManager.getUser().then((user: any) => {
-          console.log(user);
           this.$data.userStore.isAuthenticated = user !== null && !user.expired;
           this.$data.userStore.user = user;
         });
