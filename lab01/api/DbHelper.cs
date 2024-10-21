@@ -5,12 +5,12 @@ using QRCoder;
 class DbHelper : IDbHelper
 {
     TicketsDb _db;
-    string _serverUrl;
+    string _webServerUrl;
 
-    public DbHelper(TicketsDb db, string serverUrl)
+    public DbHelper(TicketsDb db, string webServerUrl)
     {
         _db = db;
-        _serverUrl = serverUrl;
+        _webServerUrl = webServerUrl;
     }
 
     public Task<int> GetTicketCount()
@@ -57,7 +57,7 @@ class DbHelper : IDbHelper
         }
 
         var qrGenerator = new QRCodeGenerator();
-        var qrCodeData = qrGenerator.CreateQrCode($"{_serverUrl}/ticket/{ticket.Id}", QRCodeGenerator.ECCLevel.Default);
+        var qrCodeData = qrGenerator.CreateQrCode($"{_webServerUrl}/ticket/{ticket.Id}", QRCodeGenerator.ECCLevel.Default);
         var qrCode = new PngByteQRCode(qrCodeData);
         var qrCodeImage = qrCode.GetGraphic(20);
         return qrCodeImage;
