@@ -12,8 +12,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: "allow vue website",
         policy =>
         {
-            policy.WithOrigins("http://localhost:5173").AllowAnyMethod().AllowAnyHeader();
-            policy.WithOrigins("https://web2-lab01-client.onrender.com").AllowAnyMethod().AllowAnyHeader();
+            policy.WithOrigins("http://localhost:5173", "https://web2-lab01-client.onrender.com").AllowAnyMethod().AllowAnyHeader();
         });
 });
 builder.Services.AddControllers();
