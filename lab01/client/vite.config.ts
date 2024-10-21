@@ -6,11 +6,6 @@ import vueJsx from "@vitejs/plugin-vue-jsx";
 
 // https://vite.dev/config/
 export default defineConfig({
-  build: {
-    rollupOptions: {
-      external: ["oidc-client"], // Externalize oidc-client module
-    },
-  },
   plugins: [vue(), vueJsx()],
   resolve: {
     alias: {
