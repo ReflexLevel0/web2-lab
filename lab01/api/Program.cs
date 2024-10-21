@@ -41,16 +41,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 });
 
 // Connecting to the database
-string host = builder.Configuration["db:host"]!;
-string username = builder.Configuration["db:username"]!;
-string password = builder.Configuration["db:password"]!;
-string database = builder.Configuration["db:database"]!;
-string connectionString = $"Host={host};Username={username};Password={password};Database={database}";
+string? connectionString = builder.Configuration["DB_CONN_STRING"];
 System.Console.WriteLine(connectionString);
 if (connectionString == null) throw new Exception("Connection string not set in appsettings file");
 var ticketsDb = new TicketsDb(new DataOptions<TicketsDb>(new DataOptions().UsePostgreSQL(connectionString)));
-string? serverUrl = (string?)builder.Configuration["ServerUrl"];
+string? serverUrl = (string?)builder.Configuration["SERVER_URL"];
 if (serverUrl == null) throw new Exception("Server URL not set in appsettings file");
+Console.WriteLine(serverUrl);
 var dbHelper = new DbHelper(ticketsDb, serverUrl);
 builder.Services.AddScoped<IDbHelper>(sp => dbHelper);
 
