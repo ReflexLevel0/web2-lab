@@ -42,11 +42,10 @@ export default {
   </div>
   <div v-else-if="ticket !== undefined">
     <h2>Ticket info:</h2>
-    <p>ID: {{ ticket.id }}</p>
-    <p>Generated time: {{ ticket.generatedTime }}</p>
-    <p>Vatin: {{ ticket.vatin }}</p>
+    <p>OIB: {{ ticket.vatin }}</p>
     <p>First name: {{ ticket.firstName }}</p>
     <p>Last name: {{ ticket.lastName }}</p>
+    <p>Generated time: {{ ticket.generatedTime }}</p>
   </div>
 </template>
 
