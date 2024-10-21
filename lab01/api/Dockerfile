@@ -18,6 +18,6 @@ RUN dotnet publish "api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAp
 
 FROM base AS final
 WORKDIR /app
-ENV ASPNETCORE_ENVIRONMENT Development
+ENV ASPNETCORE_ENVIRONMENT Production
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "api.dll", "--urls", "http://0.0.0.0:5242"]
