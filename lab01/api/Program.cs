@@ -13,6 +13,7 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy.WithOrigins("http://localhost:5173").AllowAnyMethod().AllowAnyHeader();
+            policy.WithOrigins("https://web2-lab01-client.onrender.com:5173").AllowAnyMethod().AllowAnyHeader();
         });
 });
 builder.Services.AddControllers();
