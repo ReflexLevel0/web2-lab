@@ -11,7 +11,8 @@
   "dependencies": {
     "alasql": "^4.5.2",
     "pg": "^8.13.1",
-    "vue": "^3.5.12"
+    "vue": "^3.5.12",
+    "oidc-client": "^1.11.5"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.1.4",
