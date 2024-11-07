@@ -21,7 +21,7 @@ export default {
         "brokenAuthEnabled",
         enabled == true ? "true" : "false",
       );
-      this.brokenAuthenticationEnabled = enabled;
+      this.brokenAuthEnabled = enabled;
       const settings: any = {
         userStore: new WebStorageStateStore({ store: window.localStorage }),
         authority: "https://" + import.meta.env.VITE_DOMAIN,
