@@ -48,7 +48,7 @@ export default {
         if (window_url.indexOf("access_token") != -1) {
           alert("SESSION DATA FETCHED FROM URL: " + window_url.split("#")[1]);
         } else {
-          alert("FAILED TO FETCH DATA FROM URL");
+          alert("EXPLOIT FAILED: can't get data from URL");
         }
       })
       .catch((err) => {
