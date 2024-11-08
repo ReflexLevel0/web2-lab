@@ -48,7 +48,7 @@ var Player = /** @class */ (function (_super) {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.left = false;
         _this.right = false;
-        _this.maxSpeed = 3;
+        _this.maxSpeed = 5;
         return _this;
     }
     Player.prototype.updatePosition = function () {
@@ -111,8 +111,9 @@ var Ball = /** @class */ (function (_super) {
         if (this.checkCollision(this, game.player)) {
             var pixelDiff = this.x + this.width / 2 - game.player.x - game.player.width / 2;
             var percentageDiff = (pixelDiff / game.player.width) * 2;
+            percentageDiff = Math.min(0.9, Math.max(-0.9, percentageDiff));
             this.speed[0] = percentageDiff * this.max_speed;
-            this.speed[1] = -Math.abs(Math.sqrt(Math.pow(this.max_speed, 2) - Math.pow(this.speed[0], 2)));
+            this.speed[1] = this.calculateYSpeed();
             return;
         }
         // Checking if ball colliding with any brick
@@ -124,9 +125,21 @@ var Ball = /** @class */ (function (_super) {
         });
         // Removing a brick if ball is colliding with it and changing the y direction of the ball
         if (collidingBrick != undefined) {
+            // Checking if ball colliding on the side of the brick
+            if ((this.x >= collidingBrick.x + collidingBrick.width ||
+                this.x <= collidingBrick.x) &&
+                this.speed[0] > 0.1) {
+                this.speed[0] = -this.speed[0];
+            }
+            // If ball is colliding on brick on top or bottom
+            else {
+                this.speed[1] = -this.speed[1];
+            }
             game.bricks.splice(game.bricks.indexOf(collidingBrick), 1);
-            this.speed[1] = -this.speed[1];
         }
+    };
+    Ball.prototype.calculateYSpeed = function () {
+        return -Math.abs(Math.sqrt(Math.pow(this.max_speed, 2) - Math.pow(this.speed[0], 2)));
     };
     Ball.prototype.draw = function () {
         context.fillStyle = this.color;
@@ -144,12 +157,6 @@ var Ball = /** @class */ (function (_super) {
             }
         }
         return false;
-        //return (
-        //  midX >= element.x &&
-        //  midX <= element.x + element.width &&
-        //  midY <= element.y + element.height &&
-        //  midY >= element.y
-        //);
     };
     return Ball;
 }(MoveableCanvasElement));
@@ -199,7 +206,7 @@ var Game = /** @class */ (function () {
         ];
         this.ball = new Ball(ballCords[0], ballCords[1], ballSize[0], ballSize[1], "black");
         this.ball.speed[0] = (0.5 - Math.random()) * this.ball.max_speed;
-        this.ball.speed[1] = -Math.abs(Math.sqrt(Math.pow(this.ball.max_speed, 2) - Math.pow(this.ball.speed[0], 2)));
+        this.ball.speed[1] = this.ball.calculateYSpeed();
         document.onkeydown = function (event) {
             if (event.key == "ArrowLeft") {
                 _this.player.left = true;

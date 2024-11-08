@@ -41,7 +41,7 @@ class Canvas {
 class Player extends MoveableCanvasElement {
   left: boolean = false;
   right: boolean = false;
-  maxSpeed: number = 3;
+  maxSpeed: number = 5;
 
   updatePosition() {
     this.speed[0] = 0;
@@ -100,10 +100,9 @@ class Ball extends MoveableCanvasElement {
       let pixelDiff =
         this.x + this.width / 2 - game.player.x - game.player.width / 2;
       let percentageDiff = (pixelDiff / game.player.width) * 2;
+      percentageDiff = Math.min(0.9, Math.max(-0.9, percentageDiff));
       this.speed[0] = percentageDiff * this.max_speed;
-      this.speed[1] = -Math.abs(
-        Math.sqrt(Math.pow(this.max_speed, 2) - Math.pow(this.speed[0], 2)),
-      );
+      this.speed[1] = this.calculateYSpeed();
       return;
     }
 
@@ -117,9 +116,28 @@ class Ball extends MoveableCanvasElement {
 
     // Removing a brick if ball is colliding with it and changing the y direction of the ball
     if (collidingBrick != undefined) {
+      // Checking if ball colliding on the side of the brick
+      if (
+        (this.x >= collidingBrick.x + collidingBrick.width ||
+          this.x <= collidingBrick.x) &&
+        this.speed[0] > 0.1
+      ) {
+        this.speed[0] = -this.speed[0];
+      }
+
+      // If ball is colliding on brick on top or bottom
+      else {
+        this.speed[1] = -this.speed[1];
+      }
+
       game.bricks.splice(game.bricks.indexOf(collidingBrick), 1);
-      this.speed[1] = -this.speed[1];
     }
+  }
+
+  calculateYSpeed() {
+    return -Math.abs(
+      Math.sqrt(Math.pow(this.max_speed, 2) - Math.pow(this.speed[0], 2)),
+    );
   }
 
   draw() {
@@ -141,13 +159,6 @@ class Ball extends MoveableCanvasElement {
       }
     }
     return false;
-
-    //return (
-    //  midX >= element.x &&
-    //  midX <= element.x + element.width &&
-    //  midY <= element.y + element.height &&
-    //  midY >= element.y
-    //);
   }
 }
 
@@ -219,11 +230,7 @@ class Game {
       "black",
     );
     this.ball.speed[0] = (0.5 - Math.random()) * this.ball.max_speed;
-    this.ball.speed[1] = -Math.abs(
-      Math.sqrt(
-        Math.pow(this.ball.max_speed, 2) - Math.pow(this.ball.speed[0], 2),
-      ),
-    );
+    this.ball.speed[1] = this.ball.calculateYSpeed();
 
     document.onkeydown = (event: KeyboardEvent) => {
       if (event.key == "ArrowLeft") {
