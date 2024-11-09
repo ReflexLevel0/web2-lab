@@ -25,23 +25,48 @@ class MoveableCanvasElement extends CanvasElement {
 }
 
 class Canvas {
+  canvasEl: HTMLCanvasElement;
+  context: CanvasRenderingContext2D;
   width: number;
   height: number;
 
-  constructor(width: number, height: number) {
-    this.width = width;
-    this.height = height;
+  constructor(canvasEl: HTMLCanvasElement) {
+    this.canvasEl = canvasEl;
+    this.width = canvasEl.width;
+    this.height = canvasEl.height;
+    this.context = this.canvasEl.getContext("2d");
   }
 
   clear() {
-    context.clearRect(0, 0, this.width, this.height);
+    this.context.clearRect(0, 0, this.width, this.height);
+  }
+
+  printEndScreen(wonGame: boolean) {
+    this.clear();
+    this.context.font = "48px serif";
+    this.context.shadowBlur = 0;
+    this.context.fillStyle = "black";
+    this.context.textAlign = "center";
+    this.context.fillText(
+      wonGame ? "YOU WON" : "GAME OVER",
+      this.width / 2,
+      this.height / 2,
+    );
+  }
+
+  printScore(score: number, maxScore: number) {
+    this.context.font = "24px serif";
+    this.context.shadowBlur = 0;
+    this.context.fillStyle = "black";
+    this.context.textAlign = "right";
+    this.context.fillText(score + "/" + maxScore, this.width, 20, this.width);
   }
 }
 
 class Player extends MoveableCanvasElement {
   left: boolean = false;
   right: boolean = false;
-  maxSpeed: number = 5;
+  maxSpeed: number = 10;
 
   updatePosition() {
     this.speed[0] = 0;
@@ -56,22 +81,22 @@ class Player extends MoveableCanvasElement {
   }
 
   draw() {
-    context.fillStyle = this.color;
-    context.shadowBlur = 10;
-    context.shadowColor = "black";
-    context.fillRect(this.x, this.y, this.width, this.height);
+    game.canvas.context.fillStyle = this.color;
+    game.canvas.context.shadowBlur = 10;
+    game.canvas.context.shadowColor = "black";
+    game.canvas.context.fillRect(this.x, this.y, this.width, this.height);
   }
 }
 
 class Brick extends CanvasElement {
   draw() {
-    context.fillStyle = this.color;
-    context.fillRect(this.x, this.y, this.width, this.height);
+    game.canvas.context.fillStyle = this.color;
+    game.canvas.context.fillRect(this.x, this.y, this.width, this.height);
   }
 }
 
 class Ball extends MoveableCanvasElement {
-  max_speed: number = 2;
+  max_speed: number = 3;
 
   updatePosition() {
     this.x += this.speed[0] * this.max_speed;
@@ -79,7 +104,7 @@ class Ball extends MoveableCanvasElement {
 
     // Game is over if ball is below bottom line
     if (this.y > game.canvas.height) {
-      //game.gameOver();
+      game.gameOver(false);
       return;
     }
 
@@ -120,7 +145,7 @@ class Ball extends MoveableCanvasElement {
       if (
         (this.x >= collidingBrick.x + collidingBrick.width ||
           this.x <= collidingBrick.x) &&
-        this.speed[0] > 0.1
+        this.speed[0] > 0.05 * this.max_speed
       ) {
         this.speed[0] = -this.speed[0];
       }
@@ -131,6 +156,12 @@ class Ball extends MoveableCanvasElement {
       }
 
       game.bricks.splice(game.bricks.indexOf(collidingBrick), 1);
+      game.score++;
+    }
+
+    // Player won if no more bricks are left
+    if (game.bricks.length == 0) {
+      game.gameOver(true);
     }
   }
 
@@ -141,8 +172,8 @@ class Ball extends MoveableCanvasElement {
   }
 
   draw() {
-    context.fillStyle = this.color;
-    context.fillRect(this.x, this.y, this.width, this.height);
+    game.canvas.context.fillStyle = this.color;
+    game.canvas.context.fillRect(this.x, this.y, this.width, this.height);
   }
 
   checkCollision(source: CanvasElement, target: CanvasElement) {
@@ -163,8 +194,8 @@ class Ball extends MoveableCanvasElement {
 }
 
 class Game {
-  rows: number = 10;
-  columns: number = 10;
+  rows: number = 8;
+  columns: number = 20;
   brickColors: string[] = [
     "red",
     "green",
@@ -181,19 +212,30 @@ class Game {
   canvas: Canvas;
   bricks: Brick[] = [];
   ball: Ball;
+  refreshInterval: any;
+  score: number;
+
+  init() {
+    // Initializing the canvas
+    let canvasEl = document.createElement("canvas");
+    canvasEl.id = "gameCanvas";
+    canvasEl.width = window.innerWidth - 20;
+    canvasEl.height = window.innerHeight - 20;
+    this.canvas = new Canvas(canvasEl);
+    document.body.appendChild(canvasEl);
+  }
 
   start() {
-    // Initializing the canvas
-    this.canvas = new Canvas(canvasEl.width, canvasEl.height);
+    this.score = 0;
 
     // Drawing bricks
-    let brickSize = [canvasEl.width / this.columns, 20];
+    let brickSize = [this.canvas.width / this.columns, 20];
     for (let i = 0; i < this.rows; i++) {
       for (let j = 0; j < this.columns; j++) {
         let color = this.brickColors[(i + j) % this.brickColors.length];
         let brick = new Brick(
           brickSize[0] * j,
-          brickSize[1] * i,
+          brickSize[1] * (i + 1),
           brickSize[0],
           brickSize[1],
           color,
@@ -248,7 +290,7 @@ class Game {
       }
     };
 
-    setInterval(() => {
+    this.refreshInterval = setInterval(() => {
       this.refreshGame();
     }, 10);
   }
@@ -260,12 +302,15 @@ class Game {
     this.bricks.forEach((brick) => brick.draw());
     this.ball.updatePosition();
     this.ball.draw();
+    this.canvas.printScore(this.score, this.rows * this.columns);
+  }
+
+  gameOver(won: boolean) {
+    clearInterval(this.refreshInterval);
+    setTimeout(() => this.canvas.printEndScreen(won), 100);
   }
 }
 
-let canvasEl: HTMLCanvasElement = document.getElementById(
-  "gameCanvas",
-) as HTMLCanvasElement;
-let context = canvasEl.getContext("2d");
 let game = new Game();
+game.init();
 game.start();

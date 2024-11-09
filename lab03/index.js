@@ -33,12 +33,29 @@ var MoveableCanvasElement = /** @class */ (function (_super) {
     return MoveableCanvasElement;
 }(CanvasElement));
 var Canvas = /** @class */ (function () {
-    function Canvas(width, height) {
-        this.width = width;
-        this.height = height;
+    function Canvas(canvasEl) {
+        this.canvasEl = canvasEl;
+        this.width = canvasEl.width;
+        this.height = canvasEl.height;
+        this.context = this.canvasEl.getContext("2d");
     }
     Canvas.prototype.clear = function () {
-        context.clearRect(0, 0, this.width, this.height);
+        this.context.clearRect(0, 0, this.width, this.height);
+    };
+    Canvas.prototype.printEndScreen = function (wonGame) {
+        this.clear();
+        this.context.font = "48px serif";
+        this.context.shadowBlur = 0;
+        this.context.fillStyle = "black";
+        this.context.textAlign = "center";
+        this.context.fillText(wonGame ? "YOU WON" : "GAME OVER", this.width / 2, this.height / 2);
+    };
+    Canvas.prototype.printScore = function (score, maxScore) {
+        this.context.font = "24px serif";
+        this.context.shadowBlur = 0;
+        this.context.fillStyle = "black";
+        this.context.textAlign = "right";
+        this.context.fillText(score + "/" + maxScore, this.width, 20, this.width);
     };
     return Canvas;
 }());
@@ -48,7 +65,7 @@ var Player = /** @class */ (function (_super) {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.left = false;
         _this.right = false;
-        _this.maxSpeed = 5;
+        _this.maxSpeed = 10;
         return _this;
     }
     Player.prototype.updatePosition = function () {
@@ -63,10 +80,10 @@ var Player = /** @class */ (function (_super) {
         this.x = Math.min(Math.max(this.x, 0), game.canvas.width - this.width);
     };
     Player.prototype.draw = function () {
-        context.fillStyle = this.color;
-        context.shadowBlur = 10;
-        context.shadowColor = "black";
-        context.fillRect(this.x, this.y, this.width, this.height);
+        game.canvas.context.fillStyle = this.color;
+        game.canvas.context.shadowBlur = 10;
+        game.canvas.context.shadowColor = "black";
+        game.canvas.context.fillRect(this.x, this.y, this.width, this.height);
     };
     return Player;
 }(MoveableCanvasElement));
@@ -76,8 +93,8 @@ var Brick = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     Brick.prototype.draw = function () {
-        context.fillStyle = this.color;
-        context.fillRect(this.x, this.y, this.width, this.height);
+        game.canvas.context.fillStyle = this.color;
+        game.canvas.context.fillRect(this.x, this.y, this.width, this.height);
     };
     return Brick;
 }(CanvasElement));
@@ -85,7 +102,7 @@ var Ball = /** @class */ (function (_super) {
     __extends(Ball, _super);
     function Ball() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.max_speed = 2;
+        _this.max_speed = 3;
         return _this;
     }
     Ball.prototype.updatePosition = function () {
@@ -94,7 +111,7 @@ var Ball = /** @class */ (function (_super) {
         this.y += this.speed[1] * this.max_speed;
         // Game is over if ball is below bottom line
         if (this.y > game.canvas.height) {
-            //game.gameOver();
+            game.gameOver(false);
             return;
         }
         // Ball colliding with left or right wall
@@ -128,7 +145,7 @@ var Ball = /** @class */ (function (_super) {
             // Checking if ball colliding on the side of the brick
             if ((this.x >= collidingBrick.x + collidingBrick.width ||
                 this.x <= collidingBrick.x) &&
-                this.speed[0] > 0.1) {
+                this.speed[0] > 0.05 * this.max_speed) {
                 this.speed[0] = -this.speed[0];
             }
             // If ball is colliding on brick on top or bottom
@@ -136,14 +153,19 @@ var Ball = /** @class */ (function (_super) {
                 this.speed[1] = -this.speed[1];
             }
             game.bricks.splice(game.bricks.indexOf(collidingBrick), 1);
+            game.score++;
+        }
+        // Player won if no more bricks are left
+        if (game.bricks.length == 0) {
+            game.gameOver(true);
         }
     };
     Ball.prototype.calculateYSpeed = function () {
         return -Math.abs(Math.sqrt(Math.pow(this.max_speed, 2) - Math.pow(this.speed[0], 2)));
     };
     Ball.prototype.draw = function () {
-        context.fillStyle = this.color;
-        context.fillRect(this.x, this.y, this.width, this.height);
+        game.canvas.context.fillStyle = this.color;
+        game.canvas.context.fillRect(this.x, this.y, this.width, this.height);
     };
     Ball.prototype.checkCollision = function (source, target) {
         for (var i = source.x; i <= source.x + source.width; i++) {
@@ -162,8 +184,8 @@ var Ball = /** @class */ (function (_super) {
 }(MoveableCanvasElement));
 var Game = /** @class */ (function () {
     function Game() {
-        this.rows = 10;
-        this.columns = 10;
+        this.rows = 8;
+        this.columns = 20;
         this.brickColors = [
             "red",
             "green",
@@ -178,16 +200,24 @@ var Game = /** @class */ (function () {
         ];
         this.bricks = [];
     }
+    Game.prototype.init = function () {
+        // Initializing the canvas
+        var canvasEl = document.createElement("canvas");
+        canvasEl.id = "gameCanvas";
+        canvasEl.width = window.innerWidth - 20;
+        canvasEl.height = window.innerHeight - 20;
+        this.canvas = new Canvas(canvasEl);
+        document.body.appendChild(canvasEl);
+    };
     Game.prototype.start = function () {
         var _this = this;
-        // Initializing the canvas
-        this.canvas = new Canvas(canvasEl.width, canvasEl.height);
+        this.score = 0;
         // Drawing bricks
-        var brickSize = [canvasEl.width / this.columns, 20];
+        var brickSize = [this.canvas.width / this.columns, 20];
         for (var i = 0; i < this.rows; i++) {
             for (var j = 0; j < this.columns; j++) {
                 var color = this.brickColors[(i + j) % this.brickColors.length];
-                var brick = new Brick(brickSize[0] * j, brickSize[1] * i, brickSize[0], brickSize[1], color);
+                var brick = new Brick(brickSize[0] * j, brickSize[1] * (i + 1), brickSize[0], brickSize[1], color);
                 this.bricks.push(brick);
             }
         }
@@ -223,7 +253,7 @@ var Game = /** @class */ (function () {
                 _this.player.right = false;
             }
         };
-        setInterval(function () {
+        this.refreshInterval = setInterval(function () {
             _this.refreshGame();
         }, 10);
     };
@@ -234,10 +264,19 @@ var Game = /** @class */ (function () {
         this.bricks.forEach(function (brick) { return brick.draw(); });
         this.ball.updatePosition();
         this.ball.draw();
+        this.canvas.printScore(this.score, this.rows * this.columns);
+    };
+    Game.prototype.gameOver = function (won) {
+        var _this = this;
+        clearInterval(this.refreshInterval);
+        setTimeout(function () { return _this.canvas.printEndScreen(won); }, 100);
     };
     return Game;
 }());
-var canvasEl = document.getElementById("gameCanvas");
-var context = canvasEl.getContext("2d");
+//let canvasEl: HTMLCanvasElement = document.getElementById(
+//"gameCanvas",
+//) as HTMLCanvasElement;
+//let context = canvasEl.getContext("2d");
 var game = new Game();
+game.init();
 game.start();
