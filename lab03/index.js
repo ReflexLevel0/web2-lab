@@ -44,14 +44,18 @@ var Canvas = /** @class */ (function () {
     };
     Canvas.prototype.printEndScreen = function (wonGame) {
         this.clear();
+        // Printing GAME OVER or YOU WON
         this.context.font = "48px serif";
         this.context.shadowBlur = 0;
         this.context.fillStyle = "black";
         this.context.textAlign = "center";
         this.context.fillText(wonGame ? "YOU WON" : "GAME OVER", this.width / 2, this.height / 2);
+        // Printing max score
+        this.context.font = "36px serif";
+        this.context.fillText("Highest score: " + game.getHighscore(), this.width / 2, (this.height * 3) / 4);
     };
     Canvas.prototype.printScore = function (score, maxScore) {
-        this.context.font = "24px serif";
+        this.context.font = "22px serif";
         this.context.shadowBlur = 0;
         this.context.fillStyle = "black";
         this.context.textAlign = "right";
@@ -65,7 +69,6 @@ var Player = /** @class */ (function (_super) {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.left = false;
         _this.right = false;
-        _this.maxSpeed = 10;
         return _this;
     }
     Player.prototype.updatePosition = function () {
@@ -101,14 +104,12 @@ var Brick = /** @class */ (function (_super) {
 var Ball = /** @class */ (function (_super) {
     __extends(Ball, _super);
     function Ball() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.max_speed = 3;
-        return _this;
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     Ball.prototype.updatePosition = function () {
         var _this = this;
-        this.x += this.speed[0] * this.max_speed;
-        this.y += this.speed[1] * this.max_speed;
+        this.x += this.speed[0] * this.maxSpeed;
+        this.y += this.speed[1] * this.maxSpeed;
         // Game is over if ball is below bottom line
         if (this.y > game.canvas.height) {
             game.gameOver(false);
@@ -129,7 +130,7 @@ var Ball = /** @class */ (function (_super) {
             var pixelDiff = this.x + this.width / 2 - game.player.x - game.player.width / 2;
             var percentageDiff = (pixelDiff / game.player.width) * 2;
             percentageDiff = Math.min(0.9, Math.max(-0.9, percentageDiff));
-            this.speed[0] = percentageDiff * this.max_speed;
+            this.speed[0] = percentageDiff * this.maxSpeed;
             this.speed[1] = this.calculateYSpeed();
             return;
         }
@@ -145,7 +146,7 @@ var Ball = /** @class */ (function (_super) {
             // Checking if ball colliding on the side of the brick
             if ((this.x >= collidingBrick.x + collidingBrick.width ||
                 this.x <= collidingBrick.x) &&
-                this.speed[0] > 0.05 * this.max_speed) {
+                this.speed[0] > 0.05 * this.maxSpeed) {
                 this.speed[0] = -this.speed[0];
             }
             // If ball is colliding on brick on top or bottom
@@ -161,7 +162,7 @@ var Ball = /** @class */ (function (_super) {
         }
     };
     Ball.prototype.calculateYSpeed = function () {
-        return -Math.abs(Math.sqrt(Math.pow(this.max_speed, 2) - Math.pow(this.speed[0], 2)));
+        return -Math.abs(Math.sqrt(Math.pow(this.maxSpeed, 2) - Math.pow(this.speed[0], 2)));
     };
     Ball.prototype.draw = function () {
         game.canvas.context.fillStyle = this.color;
@@ -184,8 +185,6 @@ var Ball = /** @class */ (function (_super) {
 }(MoveableCanvasElement));
 var Game = /** @class */ (function () {
     function Game() {
-        this.rows = 8;
-        this.columns = 20;
         this.brickColors = [
             "red",
             "green",
@@ -206,12 +205,17 @@ var Game = /** @class */ (function () {
         canvasEl.id = "gameCanvas";
         canvasEl.width = window.innerWidth - 20;
         canvasEl.height = window.innerHeight - 20;
+        canvasEl.setAttribute("hidden", "true");
         this.canvas = new Canvas(canvasEl);
         document.body.appendChild(canvasEl);
     };
     Game.prototype.start = function () {
         var _this = this;
         this.score = 0;
+        this.rows = this.getParameterValue("rowCount");
+        this.columns = this.getParameterValue("columnCount");
+        document.getElementById("parameterForm").setAttribute("hidden", "true");
+        this.canvas.canvasEl.removeAttribute("hidden");
         // Drawing bricks
         var brickSize = [this.canvas.width / this.columns, 20];
         for (var i = 0; i < this.rows; i++) {
@@ -228,6 +232,7 @@ var Game = /** @class */ (function () {
             this.canvas.height - playerSize[1] - 50,
         ];
         this.player = new Player(playerCords[0], playerCords[1], playerSize[0], playerSize[1], "red");
+        this.player.maxSpeed = this.getParameterValue("playerSpeed");
         // Drawing the ball
         var ballSize = [10, 10];
         var ballCords = [
@@ -235,7 +240,8 @@ var Game = /** @class */ (function () {
             playerCords[1] - ballSize[1],
         ];
         this.ball = new Ball(ballCords[0], ballCords[1], ballSize[0], ballSize[1], "black");
-        this.ball.speed[0] = (0.5 - Math.random()) * this.ball.max_speed;
+        this.ball.maxSpeed = this.getParameterValue("ballSpeed");
+        this.ball.speed[0] = (0.5 - Math.random()) * this.ball.maxSpeed;
         this.ball.speed[1] = this.ball.calculateYSpeed();
         document.onkeydown = function (event) {
             if (event.key == "ArrowLeft") {
@@ -269,14 +275,27 @@ var Game = /** @class */ (function () {
     Game.prototype.gameOver = function (won) {
         var _this = this;
         clearInterval(this.refreshInterval);
+        if (game.score > this.getHighscore()) {
+            localStorage.setItem("highscore", game.score.toString());
+        }
         setTimeout(function () { return _this.canvas.printEndScreen(won); }, 100);
+    };
+    Game.prototype.getParameterValue = function (inputId) {
+        var el = document.getElementById(inputId);
+        return el.value === "" ? +el.placeholder : +el.value;
+    };
+    Game.prototype.getHighscore = function () {
+        var highscore = localStorage.getItem("highscore");
+        return highscore == null ? 0 : +highscore;
     };
     return Game;
 }());
-//let canvasEl: HTMLCanvasElement = document.getElementById(
-//"gameCanvas",
-//) as HTMLCanvasElement;
-//let context = canvasEl.getContext("2d");
+// Disabling form from refreshing page when clicking on Start Game button
+var form = document.getElementById("parameterForm");
+function handleForm(event) {
+    event.preventDefault();
+}
+form.addEventListener("submit", handleForm);
+// Initializing the game and setting parameters based on form input
 var game = new Game();
 game.init();
-game.start();
