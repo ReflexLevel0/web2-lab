@@ -41,6 +41,9 @@ class Canvas {
     this.context.clearRect(0, 0, this.width, this.height);
   }
 
+  /** Prints end screen
+   * @param wonGame true if user destroyed all bricks
+   */
   printEndScreen(wonGame: boolean) {
     this.clear();
 
@@ -64,6 +67,7 @@ class Canvas {
     );
   }
 
+  /** Prints the score in the top right corner */
   printScore(score: number, maxScore: number) {
     this.context.font = "22px serif";
     this.context.shadowBlur = 0;
@@ -78,6 +82,35 @@ class Player extends MoveableCanvasElement {
   right: boolean = false;
   maxSpeed: number;
 
+  constructor(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    color: string,
+    maxSpeed: number,
+  ) {
+    super(x, y, width, height, color);
+    this.maxSpeed = maxSpeed;
+
+    // Player controls
+    document.onkeydown = (event: KeyboardEvent) => {
+      if (event.key == "ArrowLeft") {
+        this.left = true;
+      } else if (event.key == "ArrowRight") {
+        this.right = true;
+      }
+    };
+    document.onkeyup = (event: KeyboardEvent) => {
+      if (event.key == "ArrowLeft") {
+        this.left = false;
+      } else if (event.key == "ArrowRight") {
+        this.right = false;
+      }
+    };
+  }
+
+  /** Updates position of the player based on their current speed and whether they are hitting a wall or not  */
   updatePosition() {
     this.speed[0] = 0;
     if (this.left && !this.right) {
@@ -108,6 +141,19 @@ class Brick extends CanvasElement {
 class Ball extends MoveableCanvasElement {
   maxSpeed: number;
 
+  constructor(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    color: string,
+    maxSpeed: number,
+  ) {
+    super(x, y, width, height, color);
+    this.maxSpeed = maxSpeed;
+  }
+
+  /** Updates position of the ball based on current speed and whether it is colliding with any wall, player, or brick */
   updatePosition() {
     this.x += this.speed[0] * this.maxSpeed;
     this.y += this.speed[1] * this.maxSpeed;
@@ -175,6 +221,7 @@ class Ball extends MoveableCanvasElement {
     }
   }
 
+  /** Calculates Y speed based on the X so that X^2 + Y^2 = maxSpeed^2 */
   calculateYSpeed() {
     return -Math.abs(
       Math.sqrt(Math.pow(this.maxSpeed, 2) - Math.pow(this.speed[0], 2)),
@@ -186,6 +233,7 @@ class Ball extends MoveableCanvasElement {
     game.canvas.context.fillRect(this.x, this.y, this.width, this.height);
   }
 
+  /** Checks for collision between source and target elements */
   checkCollision(source: CanvasElement, target: CanvasElement) {
     for (let i = source.x; i <= source.x + source.width; i++) {
       for (let j = source.y; j <= source.y + source.height; j++) {
@@ -225,8 +273,9 @@ class Game {
   refreshInterval: any;
   score: number;
 
+  /** Initializing the canvas
+   */
   init() {
-    // Initializing the canvas
     let canvasEl = document.createElement("canvas");
     canvasEl.id = "gameCanvas";
     canvasEl.width = window.innerWidth - 20;
@@ -236,6 +285,7 @@ class Game {
     document.body.appendChild(canvasEl);
   }
 
+  /** Starts the game */
   start() {
     this.score = 0;
     this.rows = this.getParameterValue("rowCount");
@@ -271,8 +321,8 @@ class Game {
       playerSize[0],
       playerSize[1],
       "red",
+      this.getParameterValue("playerSpeed"),
     );
-    this.player.maxSpeed = this.getParameterValue("playerSpeed");
 
     // Drawing the ball
     let ballSize = [10, 10];
@@ -286,32 +336,17 @@ class Game {
       ballSize[0],
       ballSize[1],
       "black",
+      this.getParameterValue("ballSpeed"),
     );
-    this.ball.maxSpeed = this.getParameterValue("ballSpeed");
     this.ball.speed[0] = (0.5 - Math.random()) * this.ball.maxSpeed;
     this.ball.speed[1] = this.ball.calculateYSpeed();
-
-    document.onkeydown = (event: KeyboardEvent) => {
-      if (event.key == "ArrowLeft") {
-        this.player.left = true;
-      } else if (event.key == "ArrowRight") {
-        this.player.right = true;
-      }
-    };
-
-    document.onkeyup = (event: KeyboardEvent) => {
-      if (event.key == "ArrowLeft") {
-        this.player.left = false;
-      } else if (event.key == "ArrowRight") {
-        this.player.right = false;
-      }
-    };
 
     this.refreshInterval = setInterval(() => {
       this.refreshGame();
     }, 10);
   }
 
+  /** Updates the entire canvas, runs every time after a set interval expires */
   refreshGame() {
     this.canvas.clear();
     this.player.updatePosition();
@@ -322,6 +357,10 @@ class Game {
     this.canvas.printScore(this.score, this.rows * this.columns);
   }
 
+  /**
+   * Clearing the canvas and printing out end screen messages when game is won or lost
+   * @param won true if user cleared all the bricks
+   */
   gameOver(won: boolean) {
     clearInterval(this.refreshInterval);
     if (game.score > this.getHighscore()) {
@@ -330,6 +369,10 @@ class Game {
     setTimeout(() => this.canvas.printEndScreen(won), 100);
   }
 
+  /**
+   * Gets parameter value from the HTML form
+   * @param inputId ID of the HTMLInputElement
+   */
   getParameterValue(inputId: string): number {
     let el: HTMLInputElement = document.getElementById(
       inputId,
@@ -337,6 +380,7 @@ class Game {
     return el.value === "" ? +el.placeholder : +el.value;
   }
 
+  /** Fetches highscore from local storage */
   getHighscore(): number {
     let highscore: string | null = localStorage.getItem("highscore");
     return highscore == null ? 0 : +highscore;

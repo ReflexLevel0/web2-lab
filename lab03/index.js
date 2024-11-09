@@ -42,6 +42,9 @@ var Canvas = /** @class */ (function () {
     Canvas.prototype.clear = function () {
         this.context.clearRect(0, 0, this.width, this.height);
     };
+    /** Prints end screen
+     * @param wonGame true if user destroyed all bricks
+     */
     Canvas.prototype.printEndScreen = function (wonGame) {
         this.clear();
         // Printing GAME OVER or YOU WON
@@ -54,6 +57,7 @@ var Canvas = /** @class */ (function () {
         this.context.font = "36px serif";
         this.context.fillText("Highest score: " + game.getHighscore(), this.width / 2, (this.height * 3) / 4);
     };
+    /** Prints the score in the top right corner */
     Canvas.prototype.printScore = function (score, maxScore) {
         this.context.font = "22px serif";
         this.context.shadowBlur = 0;
@@ -65,12 +69,31 @@ var Canvas = /** @class */ (function () {
 }());
 var Player = /** @class */ (function (_super) {
     __extends(Player, _super);
-    function Player() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
+    function Player(x, y, width, height, color, maxSpeed) {
+        var _this = _super.call(this, x, y, width, height, color) || this;
         _this.left = false;
         _this.right = false;
+        _this.maxSpeed = maxSpeed;
+        // Player controls
+        document.onkeydown = function (event) {
+            if (event.key == "ArrowLeft") {
+                _this.left = true;
+            }
+            else if (event.key == "ArrowRight") {
+                _this.right = true;
+            }
+        };
+        document.onkeyup = function (event) {
+            if (event.key == "ArrowLeft") {
+                _this.left = false;
+            }
+            else if (event.key == "ArrowRight") {
+                _this.right = false;
+            }
+        };
         return _this;
     }
+    /** Updates position of the player based on their current speed and whether they are hitting a wall or not  */
     Player.prototype.updatePosition = function () {
         this.speed[0] = 0;
         if (this.left && !this.right) {
@@ -103,9 +126,12 @@ var Brick = /** @class */ (function (_super) {
 }(CanvasElement));
 var Ball = /** @class */ (function (_super) {
     __extends(Ball, _super);
-    function Ball() {
-        return _super !== null && _super.apply(this, arguments) || this;
+    function Ball(x, y, width, height, color, maxSpeed) {
+        var _this = _super.call(this, x, y, width, height, color) || this;
+        _this.maxSpeed = maxSpeed;
+        return _this;
     }
+    /** Updates position of the ball based on current speed and whether it is colliding with any wall, player, or brick */
     Ball.prototype.updatePosition = function () {
         var _this = this;
         this.x += this.speed[0] * this.maxSpeed;
@@ -161,6 +187,7 @@ var Ball = /** @class */ (function (_super) {
             game.gameOver(true);
         }
     };
+    /** Calculates Y speed based on the X so that X^2 + Y^2 = maxSpeed^2 */
     Ball.prototype.calculateYSpeed = function () {
         return -Math.abs(Math.sqrt(Math.pow(this.maxSpeed, 2) - Math.pow(this.speed[0], 2)));
     };
@@ -168,6 +195,7 @@ var Ball = /** @class */ (function (_super) {
         game.canvas.context.fillStyle = this.color;
         game.canvas.context.fillRect(this.x, this.y, this.width, this.height);
     };
+    /** Checks for collision between source and target elements */
     Ball.prototype.checkCollision = function (source, target) {
         for (var i = source.x; i <= source.x + source.width; i++) {
             for (var j = source.y; j <= source.y + source.height; j++) {
@@ -199,8 +227,9 @@ var Game = /** @class */ (function () {
         ];
         this.bricks = [];
     }
+    /** Initializing the canvas
+     */
     Game.prototype.init = function () {
-        // Initializing the canvas
         var canvasEl = document.createElement("canvas");
         canvasEl.id = "gameCanvas";
         canvasEl.width = window.innerWidth - 20;
@@ -209,6 +238,7 @@ var Game = /** @class */ (function () {
         this.canvas = new Canvas(canvasEl);
         document.body.appendChild(canvasEl);
     };
+    /** Starts the game */
     Game.prototype.start = function () {
         var _this = this;
         this.score = 0;
@@ -231,38 +261,21 @@ var Game = /** @class */ (function () {
             this.canvas.width / 2 - playerSize[0] / 2,
             this.canvas.height - playerSize[1] - 50,
         ];
-        this.player = new Player(playerCords[0], playerCords[1], playerSize[0], playerSize[1], "red");
-        this.player.maxSpeed = this.getParameterValue("playerSpeed");
+        this.player = new Player(playerCords[0], playerCords[1], playerSize[0], playerSize[1], "red", this.getParameterValue("playerSpeed"));
         // Drawing the ball
         var ballSize = [10, 10];
         var ballCords = [
             playerCords[0] + playerSize[0] / 2 - ballSize[0] / 2,
             playerCords[1] - ballSize[1],
         ];
-        this.ball = new Ball(ballCords[0], ballCords[1], ballSize[0], ballSize[1], "black");
-        this.ball.maxSpeed = this.getParameterValue("ballSpeed");
+        this.ball = new Ball(ballCords[0], ballCords[1], ballSize[0], ballSize[1], "black", this.getParameterValue("ballSpeed"));
         this.ball.speed[0] = (0.5 - Math.random()) * this.ball.maxSpeed;
         this.ball.speed[1] = this.ball.calculateYSpeed();
-        document.onkeydown = function (event) {
-            if (event.key == "ArrowLeft") {
-                _this.player.left = true;
-            }
-            else if (event.key == "ArrowRight") {
-                _this.player.right = true;
-            }
-        };
-        document.onkeyup = function (event) {
-            if (event.key == "ArrowLeft") {
-                _this.player.left = false;
-            }
-            else if (event.key == "ArrowRight") {
-                _this.player.right = false;
-            }
-        };
         this.refreshInterval = setInterval(function () {
             _this.refreshGame();
         }, 10);
     };
+    /** Updates the entire canvas, runs every time after a set interval expires */
     Game.prototype.refreshGame = function () {
         this.canvas.clear();
         this.player.updatePosition();
@@ -272,6 +285,10 @@ var Game = /** @class */ (function () {
         this.ball.draw();
         this.canvas.printScore(this.score, this.rows * this.columns);
     };
+    /**
+     * Clearing the canvas and printing out end screen messages when game is won or lost
+     * @param won true if user cleared all the bricks
+     */
     Game.prototype.gameOver = function (won) {
         var _this = this;
         clearInterval(this.refreshInterval);
@@ -280,10 +297,15 @@ var Game = /** @class */ (function () {
         }
         setTimeout(function () { return _this.canvas.printEndScreen(won); }, 100);
     };
+    /**
+     * Gets parameter value from the HTML form
+     * @param inputId ID of the HTMLInputElement
+     */
     Game.prototype.getParameterValue = function (inputId) {
         var el = document.getElementById(inputId);
         return el.value === "" ? +el.placeholder : +el.value;
     };
+    /** Fetches highscore from local storage */
     Game.prototype.getHighscore = function () {
         var highscore = localStorage.getItem("highscore");
         return highscore == null ? 0 : +highscore;
@@ -296,6 +318,5 @@ function handleForm(event) {
     event.preventDefault();
 }
 form.addEventListener("submit", handleForm);
-// Initializing the game and setting parameters based on form input
 var game = new Game();
 game.init();
