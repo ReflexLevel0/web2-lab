@@ -73,8 +73,10 @@ export default {
       checkbox-a ta se funkcionalnost onemogućava te se pokušajem prijave u
       sustav iz URL-a samo može isčitati kod koji nije osjetljiva informacija.
     </p>
-    <p>Testni login podaci: blabla@gmail.com Test1234</p>
-    <label for="authentication-input">Broken authentication enabled: </label>
+    <p>Testni login podaci: <b>blabla@gmail.com Test1234</b></p>
+    <label for="authentication-input"
+      >Broken Authentication ranjivost omogućena:
+    </label>
     <input
       id="authentication-input"
       type="checkbox"
@@ -82,9 +84,9 @@ export default {
       @input="this.setBrokenAuthenticationEnabled(!this.brokenAuthEnabled)"
     />
 
-    <br />
+    <br /><br />
 
-    <button v-if="isAuthenticated" @click="logout">Log out</button>
-    <button v-else @click="login">Log in</button>
+    <button v-if="isAuthenticated" @click="logout">Odjava</button>
+    <button v-else @click="login">Prijava</button>
   </div>
 </template>

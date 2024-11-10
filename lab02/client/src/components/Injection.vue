@@ -53,11 +53,12 @@ export default {
     <h2>SQL Injection</h2>
     <p>
       Upute: "klikom na SQL injection enabled" omogućuje se SQL Injection. Može
-      se na primjer upisati tekst '%" OR 1=1 OR "%' kako bi se dohvatile sve
-      osobe. Isključivanjem SQL Injection-a i upisom tog istog teksta se taj
-      napad onemogućuje te se ne ispisuje niti jedna osoba.
+      se na primjer upisati tekst '<b>%" OR 1=1 OR "%</b>' (bez jednostrukih
+      navodnika na početku i kraju!) kako bi se dohvatile sve osobe.
+      Isključivanjem SQL Injection-a i upisom tog istog teksta se taj napad
+      onemogućuje te se ne ispisuje niti jedna osoba.
     </p>
-    <label for="sql-injection-input">SQL injection enabled: </label>
+    <label for="sql-injection-input">SQL Injection ranjivost omogućena: </label>
     <input
       id="sql-injection-input"
       type="checkbox"
@@ -69,9 +70,9 @@ export default {
       "
     />
 
-    <br />
+    <br /><br />
 
-    <label for="name-input">Full name search: </label>
+    <label for="name-input">Pretraga osoba: </label>
     <input
       id="name-input"
       type="text"
