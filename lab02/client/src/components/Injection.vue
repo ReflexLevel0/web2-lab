@@ -31,9 +31,13 @@ export default {
       let filtered = [];
       let name = this.$data.name_input_text;
       if (this.$data.injectionEnabled) {
-        sql_string =
-          'SELECT * FROM personView WHERE full_name LIKE "%' + name + '%"';
-        filtered = alasql(sql_string);
+        try {
+          sql_string =
+            'SELECT * FROM personView WHERE full_name LIKE "%' + name + '%"';
+          filtered = alasql(sql_string);
+        } catch {
+          filtered = [];
+        }
       } else {
         sql_string = "SELECT * FROM personView WHERE full_name LIKE ?";
         filtered = alasql(sql_string, ["%" + name + "%"]);
@@ -47,6 +51,12 @@ export default {
 <template>
   <div>
     <h2>SQL Injection</h2>
+    <p>
+      Upute: "klikom na SQL injection enabled" omogućuje se SQL Injection. Može
+      se na primjer upisati tekst '%" OR 1=1 OR "%' kako bi se dohvatile sve
+      osobe. Isključivanjem SQL Injection-a i upisom tog istog teksta se taj
+      napad onemogućuje te se ne ispisuje niti jedna osoba.
+    </p>
     <label for="sql-injection-input">SQL injection enabled: </label>
     <input
       id="sql-injection-input"
@@ -69,8 +79,8 @@ export default {
       @input="() => this.filterPeople()"
     />
 
-    <div :key="person.id" v-for="person in this.$data.filteredPeople">
-      <div>{{ person.full_name }}</div>
-    </div>
+    <ul :key="person.id" v-for="person in this.$data.filteredPeople">
+      <li>{{ person.full_name }}</li>
+    </ul>
   </div>
 </template>

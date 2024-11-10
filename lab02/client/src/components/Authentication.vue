@@ -66,6 +66,14 @@ export default {
 <template>
   <div>
     <h2>Broken authentication</h2>
+    <p>
+      Upute: klikom na "Broken authentication enabled" i prijavom u sustav preko
+      gumba "Log in", omogućava se čitanje osjetljivih podataka iz URL-a
+      browsera nakon prijave korisnika jer klijent traži token. Onemogućavanjem
+      checkbox-a ta se funkcionalnost onemogućava te se pokušajem prijave u
+      sustav iz URL-a samo može isčitati kod koji nije osjetljiva informacija.
+    </p>
+    <p>Testni login podaci: blabla@gmail.com Test1234</p>
     <label for="authentication-input">Broken authentication enabled: </label>
     <input
       id="authentication-input"
