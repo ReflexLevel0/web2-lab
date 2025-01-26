@@ -1,9 +1,7 @@
-<script setup>
-import Miniature from '../components/Miniature.vue'
-import { Notivue, Notification, push } from 'notivue'
-</script>
-
 <script>
+import Miniature from '../components/Miniature.vue'
+import { Notification, Notivue } from 'notivue'
+
 export default {
   data() {
     return {
@@ -46,12 +44,7 @@ export default {
       ],
     }
   },
-  components: { Miniature },
-  methods: {
-    displayAddedToCartNotif(miniatureName) {
-      push.success(`Added ${miniatureName} to cart`)
-    },
-  },
+  components: { Miniature, Notivue, Notification },
 }
 </script>
 
@@ -61,12 +54,7 @@ export default {
       <Notification :item="item" />
     </Notivue>
     <div v-for="m in miniatures" :key="m.name">
-      <Miniature
-        :name="m.name"
-        :price="m.price"
-        :imageUrl="m.imageUrl"
-        @onAddedToCart="displayAddedToCartNotif(m.name)"
-      />
+      <Miniature :name="m.name" :price="m.price" :imageUrl="m.imageUrl" />
     </div>
   </div>
 </template>

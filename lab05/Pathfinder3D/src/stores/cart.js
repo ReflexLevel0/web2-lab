@@ -1,21 +1,38 @@
 import { defineStore } from 'pinia'
+import { push } from 'notivue'
 export const useCartStore = defineStore('cart', {
-  state: () => ({ items: new Map() }),
+  state: () => ({ items: {} }),
   getters: {
     itemCount: state => {
       let count = 0
-      state.items.forEach((value, _) => {
-        count += new Number(value)
+      Object.keys(state.items).forEach(value => {
+        count += new Number(state.items[value].count)
       })
       return count
     }
   },
   actions: {
     addToCart(item) {
-      if (!this.items.has(item)) {
-        this.items.set(item, 0)
+      if (this.itemCount >= 99) {
+        push.error('Can\'t add more then 99 items to cart!')
+        return
       }
-      this.items.set(item, this.items.get(item) + 1)
+
+      if (item in this.items == false) {
+        this.items[item] = { count: 0 }
+      }
+
+      this.items[item].count += 1
+      push.success(`Added ${item} to cart`)
+    },
+    removeFromCart(item) {
+      if (this.items[item].count <= 1) {
+        delete this.items[item]
+      } else {
+        this.items[item].count -= 1
+      }
+
+      push.success(`Removed ${item} from cart`)
     }
   }
 })

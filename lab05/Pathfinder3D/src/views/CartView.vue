@@ -1,6 +1,6 @@
 <script>
 import { useCartStore } from '../stores/cart.js'
-import { Notivue, Notification, push } from 'notivue'
+import { Notivue, Notification } from 'notivue'
 
 export default {
   data() {
@@ -10,32 +10,10 @@ export default {
   },
   methods: {
     incrementItem(miniatureName) {
-      let newCount = this.$data.cartStore.items.get(miniatureName) + 1
-      this.setItemCount(miniatureName, newCount)
+      this.$data.cartStore.addToCart(miniatureName)
     },
     decrementItem(miniatureName) {
-      let newCount = this.$data.cartStore.items.get(miniatureName) - 1
-      this.setItemCount(miniatureName, newCount)
-    },
-    setItemCount(miniatureName, newCount) {
-      let oldCount = this.$data.cartStore.items.get(miniatureName)
-
-      if (newCount <= 0) {
-        newCount = 0
-        this.$data.cartStore.items.delete(miniatureName)
-      } else {
-        if (this.$data.cartStore.itemCount > 99) {
-          newCount = 99
-        }
-        this.$data.cartStore.items.set(miniatureName, newCount)
-      }
-
-      let difference = newCount - oldCount
-      if (difference > 0) {
-        push.success(`Added ${difference} ${miniatureName} to cart`)
-      } else {
-        push.success(`Removed ${-difference} ${miniatureName} from cart`)
-      }
+      this.$data.cartStore.removeFromCart(miniatureName)
     },
   },
   components: {
@@ -46,24 +24,23 @@ export default {
 </script>
 
 <template>
-  <div class="cart">
-    <Notivue v-slot="item">
-      <Notification :item="item" />
-    </Notivue>
-    <div class="cart-name-list">
-      <div v-for="item in cartStore.items" :key="item[0]">
-        <div>{{ item[0] }}</div>
+  <div>
+    <h2 v-if="Object.keys(cartStore.items).length == 0">No items in cart</h2>
+    <div v-else class="cart">
+      <Notivue v-slot="item">
+        <Notification :item="item" />
+      </Notivue>
+      <div class="cart-name-list">
+        <div v-for="name in Object.keys(cartStore.items)" :key="name">
+          <div>{{ name }}</div>
+        </div>
       </div>
-    </div>
-    <div class="cart-amount-list">
-      <div class="item-amount" v-for="item in cartStore.items" :key="item[0]">
-        <button @click="decrementItem(item[0])">-</button>
-        <input
-          v-model="item[1]"
-          type="number"
-          @input="(event) => setItemCount(item[0], event.target.value)"
-        />
-        <button @click="incrementItem(item[0])">+</button>
+      <div class="cart-amount-list">
+        <div class="item-amount" v-for="name in Object.keys(cartStore.items)" :key="name">
+          <button @click="decrementItem(name)">-</button>
+          <div>{{ cartStore.items[name].count }}</div>
+          <button @click="incrementItem(name)">+</button>
+        </div>
       </div>
     </div>
   </div>
