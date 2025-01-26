@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import CartView from '../views/CartView.vue'
-import PageNotFound from '../components/PageNotFound.vue'
+import PageNotFound from '../views/PageNotFound.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
