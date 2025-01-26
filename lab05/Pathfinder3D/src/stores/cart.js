@@ -1,7 +1,12 @@
 import { defineStore } from 'pinia'
 import { push } from 'notivue'
+import { useStorage } from '@vueuse/core'
+
 export const useCartStore = defineStore('cart', {
-  state: () => ({ items: {} }),
+  state: () => (
+    {
+      items: useStorage("items", {}, localStorage)
+    }),
   getters: {
     itemCount: state => {
       let count = 0
