@@ -12,6 +12,11 @@ export default {
     RouterLink,
     RouterView,
   },
+  computed: {
+    itemCount() {
+      return this.$data.cartStore.itemCount == 0 ? '' : ` (${this.$data.cartStore.itemCount})`
+    },
+  },
 }
 </script>
 
@@ -20,7 +25,7 @@ export default {
     <div class="wrapper">
       <nav>
         <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/cart">Cart ({{ this.$data.cartStore.itemCount }})</RouterLink>
+        <RouterLink to="/cart">Cart{{ itemCount }}</RouterLink>
       </nav>
     </div>
   </header>
