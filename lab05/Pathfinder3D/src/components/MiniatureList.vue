@@ -5,56 +5,39 @@ import { Notification, Notivue } from 'notivue'
 export default {
   data() {
     return {
-      miniatures: [
-        {
-          name: 'Quivering Cube',
-          price: 5.99,
-          imageUrl: 'quivering-cube.jpg',
-        },
-        {
-          name: 'Beaky',
-          price: 12.99,
-          imageUrl: 'beaky.jpg',
-        },
-        {
-          name: 'Adult Umbral Dragon',
-          price: 19.99,
-          imageUrl: 'adult-umbral-dragon_pre.jpg',
-        },
-        {
-          name: 'Child of Urgathoa',
-          price: 8.99,
-          imageUrl: 'child-of-urgathoa.jpg',
-        },
-        {
-          name: 'Hunting Spider',
-          price: 4.99,
-          imageUrl: 'hunting-spider_render.jpg',
-        },
-        {
-          name: 'Thrasfyr',
-          price: 11.99,
-          imageUrl: 'thrasfyr_pre.jpg',
-        },
-        {
-          name: 'Werebat',
-          price: 8.99,
-          imageUrl: 'werebat_render.jpg',
-        },
-      ],
+      fetchingMiniatures: true,
+      miniatures: [],
     }
   },
   components: { Miniature, Notivue, Notification },
+  mounted() {
+    this.$data.fetchingMiniatures = true
+
+    //Fetching miniatures (and also simulating a short timeout so that
+    //"Loading..." text is displayed)
+    fetch('https://run.mocky.io/v3/c70bb666-8589-4d51-802e-59cf53ba4720')
+      .then((response) => response.json())
+      .then((json) => {
+        setTimeout(() => {
+          this.$data.miniatures = json.miniatures
+          this.$data.fetchingMiniatures = false
+        }, 500)
+      })
+  },
 }
 </script>
 
 <template>
-  <div class="miniature-list">
+  <div>
     <Notivue v-slot="item">
       <Notification :item="item" />
     </Notivue>
-    <div v-for="m in miniatures" :key="m.name">
-      <Miniature :name="m.name" :price="m.price" :imageUrl="m.imageUrl" />
+
+    <div v-if="fetchingMiniatures" class="loading">Loading minis...</div>
+    <div v-else class="miniature-list">
+      <div v-for="m in miniatures" :key="m.name">
+        <Miniature :name="m.name" :price="m.price" :imageUrl="m.imageUrl" />
+      </div>
     </div>
   </div>
 </template>
@@ -66,5 +49,12 @@ export default {
 }
 .miniature-list > div {
   margin-right: 20px;
+}
+.loading {
+  font-size: 2rem;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 </style>

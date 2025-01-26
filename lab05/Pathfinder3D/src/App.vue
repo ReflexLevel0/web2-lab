@@ -12,11 +12,6 @@ export default {
     RouterLink,
     RouterView,
   },
-  computed: {
-    cartItems() {
-      return this.$data.cartStore.itemCount
-    },
-  },
 }
 </script>
 
@@ -25,7 +20,7 @@ export default {
     <div class="wrapper">
       <nav>
         <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/cart">Cart ({{ cartItems }})</RouterLink>
+        <RouterLink to="/cart">Cart ({{ this.$data.cartStore.itemCount }})</RouterLink>
       </nav>
     </div>
   </header>
