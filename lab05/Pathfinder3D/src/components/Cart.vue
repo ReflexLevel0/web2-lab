@@ -64,40 +64,25 @@ export default {
     <h2 v-if="Object.keys(cartStore.items).length == 0">No items in cart</h2>
 
     <div v-else class="cart">
-      <!--All items in the cart-->
-      <div class="cart-content">
-        <!--Column 1: list of miniature images-->
-        <div class="cart-image-list">
-          <img
-            v-for="name in Object.keys(cartStore.items)"
-            :key="name"
-            :src="cartStore.items[name].imageUrl"
-          />
-        </div>
-
-        <!--Column 2: list of names-->
-        <div class="cart-name-list">
-          <div class="cart-item-name" v-for="name in Object.keys(cartStore.items)" :key="name">
-            <div>{{ name }}</div>
-          </div>
-        </div>
-
-        <!--Column 3: list of amounts-->
-        <div class="cart-amount-list">
-          <div class="cart-item-amount" v-for="name in Object.keys(cartStore.items)" :key="name">
-            <button class="amount-button" @click="decrementItem(name)">-</button>
-            <div>{{ cartStore.items[name].count }}</div>
-            <button class="amount-button" @click="incrementItem(name)">+</button>
-          </div>
+      <!--List of minis that are in the cart-->
+      <div class="cart-item" v-for="name in Object.keys(cartStore.items)" :key="name">
+        <img :src="cartStore.items[name].imageUrl" />
+        <div class="cart-item-name">{{ name }}</div>
+        <div class="cart-item-amount">
+          <button class="amount-button" @click="decrementItem(name)">-</button>
+          <div>{{ cartStore.items[name].count }}</div>
+          <button class="amount-button" @click="incrementItem(name)">+</button>
         </div>
       </div>
 
-      <!--Purchasing minis-->
+      <!--Purchase minis button-->
       <div>
         <h2>Total price: {{ totalPrice }}€</h2>
         <div style="display: flex; flex-direction: row">
           <input v-model="terms_and_conditions" type="checkbox" />
-          <label for="terms-and-conditions">I accept the terms and conditions</label>
+          <label class="formLabel" for="terms-and-conditions"
+            >I accept the terms and conditions</label
+          >
         </div>
         <button id="purchase" disabled @click="purchaseItems()">Purchase</button>
       </div>
@@ -111,42 +96,40 @@ export default {
   flex-direction: column;
   gap: 1rem;
 }
+
 .cart-content {
   display: flex;
   flex-direction: row;
   gap: 1rem;
 }
-.cart-name-list,
-.cart-amount-list {
+
+.cart-item {
+  display: flex;
+  flex-direction: row;
+  height: 100px;
   gap: 1rem;
 }
 
-.cart-name-list,
-.cart-amount-list {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
+.cart-item-name {
+  align-content: center;
+  width: 10rem;
 }
+
 .cart-item-amount {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   gap: 1rem;
+  align-items: center;
 }
+
 .amount-button {
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 50%;
 }
-label {
+
+.formLabel {
   margin-left: 0.5rem;
-}
-.cart-image-list {
-  display: flex;
-  flex-direction: column;
-}
-.cart-image-list > img {
-  width: 100px;
-  height: 100px;
 }
 </style>

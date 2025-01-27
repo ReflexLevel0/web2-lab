@@ -26,7 +26,7 @@ export default {
     <img :src="this.$props.imageUrl" />
     <div class="miniature-price-display">
       <div>{{ this.$props.price }}€</div>
-      <button @click="addToCart()">🛒</button>
+      <button class="cartBtn" @click="addToCart()">🛒</button>
     </div>
   </div>
 </template>
@@ -36,19 +36,23 @@ export default {
   display: flex-column;
   width: 200px;
 }
+
 .miniature-root > img {
-  width: 200px;
+  width: 100%;
 }
+
 .miniature-price-display {
   display: flex;
   justify-content: space-between;
 }
+
 .miniature-price-display > div {
   font-size: 1.1rem;
 }
-button {
-  background-color: transparent;
-  border: none;
+
+.cartBtn {
+  background: transparent;
+  border-color: transparent;
   font-size: 1.3rem;
 }
 </style>

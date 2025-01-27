@@ -50,9 +50,11 @@ export default {
   display: flex;
   flex-wrap: wrap;
 }
+
 .miniature-list > div {
   margin-right: 20px;
 }
+
 .loading {
   font-size: 2rem;
   position: absolute;
