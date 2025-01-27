@@ -33,7 +33,8 @@ export default {
 
 <style scoped>
 .miniature-root {
-  display: flex-column;
+  display: flex;
+  flex-direction: column;
   width: 200px;
 }
 
