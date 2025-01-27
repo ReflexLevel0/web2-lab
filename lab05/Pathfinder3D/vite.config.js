@@ -16,6 +16,6 @@ export default defineConfig({
     },
   },
   server: {
-    allowedHosts: ["https://web2-lab05-53er.onrender.com/"]
+    allowedHosts: ["web2-lab05-53er.onrender.com"]
   }
 })

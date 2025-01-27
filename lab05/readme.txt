@@ -1,3 +1,5 @@
+PUTE ZA POKRETANJE: npm install && npm run build && npm run dev
+
 URL aplikacije: https://web2-lab05-53er.onrender.com/
 
 Popis svojstva:
