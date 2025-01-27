@@ -17,14 +17,14 @@ export const useCartStore = defineStore('cart', {
     },
   },
   actions: {
-    addToCart(item, price = 0) {
+    addToCart(item, price = undefined, imageUrl = undefined) {
       if (this.itemCount >= 99) {
         push.error('Can\'t add more then 99 items to cart!')
         return
       }
 
       if (item in this.items == false) {
-        this.items[item] = { count: 0, price: price }
+        this.items[item] = { count: 0, price: price, imageUrl: imageUrl }
       }
 
       this.items[item].count += 1

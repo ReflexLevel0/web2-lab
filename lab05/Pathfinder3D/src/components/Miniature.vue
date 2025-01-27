@@ -14,7 +14,7 @@ export default {
   },
   methods: {
     addToCart() {
-      this.$data.cartStore.addToCart(this.$props.name, this.$props.price)
+      this.$data.cartStore.addToCart(this.$props.name, this.$props.price, this.$props.imageUrl)
     },
   },
 }

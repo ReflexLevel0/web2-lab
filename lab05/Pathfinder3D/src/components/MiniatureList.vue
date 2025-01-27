@@ -33,7 +33,10 @@ export default {
       <Notification :item="item" />
     </Notivue>
 
+    <!--Displaying loading text until miniatures are loaded-->
     <div v-if="fetchingMiniatures" class="loading">Loading minis...</div>
+
+    <!--Miniature list-->
     <div v-else class="miniature-list">
       <div v-for="m in miniatures" :key="m.name">
         <Miniature :name="m.name" :price="m.price" :imageUrl="m.imageUrl" />

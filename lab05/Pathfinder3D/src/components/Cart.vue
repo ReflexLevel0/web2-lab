@@ -9,20 +9,6 @@ export default {
       cartStore: useCartStore(),
     }
   },
-  methods: {
-    incrementItem(miniatureName) {
-      this.$data.cartStore.addToCart(miniatureName)
-    },
-    decrementItem(miniatureName) {
-      this.$data.cartStore.removeFromCart(miniatureName)
-    },
-    purchaseItems() {
-      let itemCount = this.$data.cartStore.itemCount
-      this.$data.cartStore.items = {}
-      push.success(`Purchased ${itemCount} minis!`)
-      this.$emit('onItemsPurchased')
-    },
-  },
   components: {
     Notivue,
     Notification,
@@ -40,6 +26,7 @@ export default {
     },
   },
   computed: {
+    //Returns total price of all items in the cart
     totalPrice() {
       let price = 0
       let items = this.$data.cartStore.items
@@ -47,6 +34,20 @@ export default {
         price += items[key].count * items[key].price
       })
       return price.toFixed(2)
+    },
+  },
+  methods: {
+    incrementItem(miniatureName) {
+      this.$data.cartStore.addToCart(miniatureName)
+    },
+    decrementItem(miniatureName) {
+      this.$data.cartStore.removeFromCart(miniatureName)
+    },
+    purchaseItems() {
+      let itemCount = this.$data.cartStore.itemCount
+      this.$data.cartStore.items = {}
+      push.success(`Purchased ${itemCount} minis!`)
+      this.$emit('onItemsPurchased')
     },
   },
 }
@@ -65,16 +66,25 @@ export default {
     <div v-else class="cart">
       <!--All items in the cart-->
       <div class="cart-content">
-        <!--Column 1: list of names-->
+        <!--Column 1: list of miniature images-->
+        <div class="cart-image-list">
+          <img
+            v-for="name in Object.keys(cartStore.items)"
+            :key="name"
+            :src="cartStore.items[name].imageUrl"
+          />
+        </div>
+
+        <!--Column 2: list of names-->
         <div class="cart-name-list">
-          <div v-for="name in Object.keys(cartStore.items)" :key="name">
+          <div class="cart-item-name" v-for="name in Object.keys(cartStore.items)" :key="name">
             <div>{{ name }}</div>
           </div>
         </div>
 
-        <!--Column 2: list of amounts-->
+        <!--Column 3: list of amounts-->
         <div class="cart-amount-list">
-          <div class="item-amount" v-for="name in Object.keys(cartStore.items)" :key="name">
+          <div class="cart-item-amount" v-for="name in Object.keys(cartStore.items)" :key="name">
             <button class="amount-button" @click="decrementItem(name)">-</button>
             <div>{{ cartStore.items[name].count }}</div>
             <button class="amount-button" @click="incrementItem(name)">+</button>
@@ -104,25 +114,39 @@ export default {
 .cart-content {
   display: flex;
   flex-direction: row;
+  gap: 1rem;
 }
+.cart-name-list,
+.cart-amount-list {
+  gap: 1rem;
+}
+
 .cart-name-list,
 .cart-amount-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  justify-content: space-evenly;
 }
-.item-amount {
+.cart-item-amount {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   gap: 1rem;
-  margin-left: 3rem;
 }
 .amount-button {
   width: 1.5rem;
+  height: 1.5rem;
   border-radius: 50%;
 }
 label {
   margin-left: 0.5rem;
+}
+.cart-image-list {
+  display: flex;
+  flex-direction: column;
+}
+.cart-image-list > img {
+  width: 100px;
+  height: 100px;
 }
 </style>
