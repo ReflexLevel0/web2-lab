@@ -1,18 +1,34 @@
-<template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js App" />
-  </div>
-</template>
+<script setup>
+import MiniaturesList from "../components/MiniatureListComponent.vue";
+</script>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from "@/components/HelloWorld.vue";
-
 export default {
-  name: "HomeView",
   components: {
-    HelloWorld,
+    MiniaturesList,
   },
 };
 </script>
+
+<template>
+  <div>
+    <h1 class="welcome-text">Welcome to Pathfinder3D!</h1>
+    <div class="welcome-description">
+      Here you can buy various miniatures for Pathfinder TTRPG
+    </div>
+    <MiniaturesList />
+  </div>
+</template>
+
+<style scoped>
+.welcome-text,
+.welcome-description {
+  width: 100%;
+  text-align: center;
+}
+
+.welcome-description {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+}
+</style>
